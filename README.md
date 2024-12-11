@@ -151,8 +151,8 @@ including recipe-specific characteristics, are preserved.
 
 <iframe
   src="assets/minutes_distribution.html"
-  width="800"
-  height="450"
+  width="100"
+  height="100"
   frameborder="0"
 ></iframe>
 
@@ -178,7 +178,7 @@ above even 60! However, once again, most of the step counts are lower, between
 
 
 Similarly, let’s check the distribution of `n_ingredients`. This graph takes on 
-a more uniform shape, with the bulk of recipes having between 6 and 11 
+a more normal shape, with the bulk of recipes having between 6 and 11 
 ingredients.
 
 
@@ -623,9 +623,21 @@ again choose a significance level of 5% for conventional reasons, and will
 collect my test statistics and observed statistics on the test sets, while only 
 training on the selected training data.
 
-I repeated this permutation test for 1000 iterations (less so because the test 
+I repeated this permutation test for 1000 iterations (less because the test 
 is very slow, but still encompassing), and got a p-value of 0.001. As such, I 
 will reject the null hypothesis in favor of the alternative hypothesis. It seems 
 to be the case that my model performs better on those recipes whose `n_steps` 
 and `n_ingredients` counts are before the linear relationship threshold, which 
 tracks with the graphs and expectations from earlier.
+
+Below is a histogram showing the distribution of these differences. The
+vertical red line represents where my observed statistic lies in this 
+distribution. The distribution is quite normal, and yet our statistic
+is still on the outer right tail
+
+<iframe
+  src="assets/fairness.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
