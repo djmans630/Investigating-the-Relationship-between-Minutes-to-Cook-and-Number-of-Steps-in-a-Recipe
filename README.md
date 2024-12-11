@@ -248,13 +248,13 @@ process, the result is this:
 
 							Ingredients block
 
-| steps_block   |     1-5 |     5-6 |     6-7 |     7-8 |     8-9 |    9-10 |   10-11 |   11-12 |   12-14 |   14-37 |
-|:--------------|--------:|--------:|--------:|--------:|--------:|--------:|--------:|--------:|--------:|--------:|
-| 1-4           | 15.5538 | 22.9704 | 28.7969 | 32.0918 | 34.6261 | 40.4548 | 42.5841 | 46.0292 | 52.0532 | 64.9861 |
-| 4-5           | 28.6936 | 32.8758 | 34.6355 | 36.0757 | 38.5944 | 46.1458 | 43.8667 | 43.6034 | 52.4017 | 62.0479 |
-| 5-6           | 33.3199 | 37.4881 | 37.2865 | 40.6751 | 41.0836 | 46.5852 | 45.9646 | 50.4211 | 54.0708 | 57.8128 |
-| 6-8           | 35.5095 | 38.7829 | 39.994  | 42.0173 | 44.4738 | 44.0206 | 45.7723 | 49.8715 | 54.5674 | 60.1082 |
-| 8-9           | 37.2272 | 41.0145 | 43.7986 | 46.9153 | 44.7438 | 50.1227 | 50.9625 | 51.6285 | 55.2057 | 62.9204 |
+| steps_block   |     1-5 |     5-6 |     6-7 |     7-8 |     8-9 |    9-10 |
+|:--------------|--------:|--------:|--------:|--------:|--------:|--------:|
+| 1-4           | 15.5538 | 22.9704 | 28.7969 | 32.0918 | 34.6261 | 40.4548 | 
+| 4-5           | 28.6936 | 32.8758 | 34.6355 | 36.0757 | 38.5944 | 46.1458 |
+| 5-6           | 33.3199 | 37.4881 | 37.2865 | 40.6751 | 41.0836 | 46.5852 |
+| 6-8           | 35.5095 | 38.7829 | 39.994  | 42.0173 | 44.4738 | 44.0206 |
+| 8-9           | 37.2272 | 41.0145 | 43.7986 | 46.9153 | 44.7438 | 50.1227 |
 
 
 From this table, it can clearly be seen that as the steps count increases, so 
@@ -262,7 +262,10 @@ does the average minutes to cook. The same relationship is present between
 ingredients count and average minutes to cook. So, it tracks that individually, 
 both `n_steps` and `n_ingredients` have a positive association with minutes to 
 cook, but variability in the other made this relationship difficult to see in 
-the scatter plots. 
+the scatter plots. It should be noted that for the sake of space, only first 5
+rows and 6 columns are shown. However, the trend continues for both the columns
+and rows; as either step count or ingredient count increases, so to does the
+average minutes a recipe will take to complete.
 
 Nonetheless, aggregating by both shows a clear trend that indicates that yes, 
 there is indeed a relationship between `n_steps`, `n_ingredients`, and minutes 
