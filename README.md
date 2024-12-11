@@ -1,4 +1,4 @@
-# Investigating the Relationship between Minutes to Cook and Number of Steps in a Recipe
+# Investigating the Relationship between Minutes to Cook and other Characteristics in a Recipe
 ### By Daniel Mansperger
 ---
 
