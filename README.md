@@ -152,7 +152,7 @@ including recipe-specific characteristics, are preserved.
 <iframe
   src="assets/minutes_distribution.html"
   width="800"
-  height="400"
+  height="450"
   frameborder="0"
 ></iframe>
 
@@ -172,7 +172,7 @@ above even 60! However, once again, most of the step counts are lower, between
 <iframe
   src="assets/n_steps_distribution.html"
   width="800"
-  height="400"
+  height="450"
   frameborder="0"
 ></iframe>
 
@@ -185,7 +185,7 @@ ingredients.
 <iframe
   src="assets/n_ingredients_distribution.html"
   width="800"
-  height="400"
+  height="450"
   frameborder="0"
 ></iframe>
 
@@ -207,7 +207,7 @@ variable. Unfortunately, no clear trend seems to be present.
 <iframe
   src="assets/steps_minutes_scatter.html"
   width="800"
-  height="400"
+  height="450"
   frameborder="0"
 ></iframe>
 
@@ -220,7 +220,7 @@ the graph below:
 <iframe
   src="assets/ingredients_minutes_scatter.html"
   width="800"
-  height="400"
+  height="450"
   frameborder="0"
 ></iframe>
 
@@ -236,7 +236,7 @@ together to see something.
 <iframe
   src="assets/steps_ingredients_scatter.html"
   width="800"
-  height="400"
+  height="450"
   frameborder="0"
 ></iframe>
 
@@ -275,7 +275,7 @@ To further illustrate this point, let’s see the earlier scatter plots with
 <iframe
   src="assets/avg_mins_steps_scatter.html"
   width="800"
-  height="400"
+  height="450"
   frameborder="0"
 ></iframe>
 
@@ -294,7 +294,7 @@ point (ingredients = about 27 here), at which point a negative trend results.
 <iframe
   src="assets/avg_mins_ingredients_scatter.html"
   width="800"
-  height="400"
+  height="450"
   frameborder="0"
 ></iframe>
 
@@ -364,7 +364,7 @@ differences in means. Notice how improbable the observed statistic is.
 <iframe
   src="assets/empirical_means_mar.html"
   width="800"
-  height="400"
+  height="450"
   frameborder="0"
 ></iframe>
 
@@ -390,7 +390,7 @@ observed statistic’s placement on this distribution:
 <iframe
   src="assets/empirical_ks_mar.html"
   width="800"
-  height="400"
+  height="450"
   frameborder="0"
 ></iframe>
 
@@ -418,7 +418,7 @@ representing the observed statistic relative to the other test stats.
 <iframe
   src="assets/empirical_means_mcar.html"
   width="800"
-  height="400"
+  height="450"
   frameborder="0"
 ></iframe>
 
@@ -474,7 +474,7 @@ with the vertical red line showing where the observed statistic lies.
 <iframe
   src="assets/hypothesis_test.html"
   width="800"
-  height="400"
+  height="450"
   frameborder="0"
 ></iframe>
 
@@ -638,6 +638,6 @@ is still on the outer right tail
 <iframe
   src="assets/fairness.html"
   width="800"
-  height="400"
+  height="450"
   frameborder="0"
 ></iframe>
