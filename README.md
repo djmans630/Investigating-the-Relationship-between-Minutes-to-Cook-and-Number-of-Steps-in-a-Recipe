@@ -151,8 +151,8 @@ including recipe-specific characteristics, are preserved.
 
 <iframe
   src="assets/minutes_distribution.html"
-  width="100"
-  height="100"
+  width="800"
+  height="300"
   frameborder="0"
 ></iframe>
 
