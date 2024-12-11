@@ -466,3 +466,162 @@ take longer to cook on average. This tracks with my assumptions.
 
 Below is a histogram showing the distribution of the collected test statistics, 
 with the vertical red line showing where the observed statistic lies.
+
+<iframe
+  src="assets/hypothesis_test.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+
+## Framing a Prediction Problem
+
+The prediction problem I will try to address is predicting the number of 
+minutes it will take to complete a recipe. As `minutes` is numeric, and I have 
+seen semi-linear relationships with the `minutes` column in my EDA, I will use 
+regression to address this problem. 
+
+My response variable is the number of minutes to cook, representing the time it 
+takes to complete a recipe. For this, I will have filtered for recipes 
+`<=300 minutes` to capture ideally only standing recipes that can be completed 
+in one go and ignore certain outliers like the recipe that takes 1 million 
+minutes.
+
+I will use root mean squared error (RMSE) to evaluate the performance of my 
+model due to it being interpretable and common, and because it is effective 
+with regression models with quantitative predictions. I chose this over the 
+R² score because RMSE is more common in model evaluation, and I want my results 
+to be interpretable and directly comparable. I can also easily convert between 
+the two.
+
+The only columns we wouldn’t know at the time of prediction are `ratings`, 
+`avg_rating`, `date`, and `user_id`. All other columns were present in 
+`recipes`, the first dataframe, and were posted at the same time by the creator. 
+I make sure to use none of these in my prediction algorithm.
+
+
+## Baseline Model
+
+My model is a regression model intended to predict the number of minutes it 
+will take to complete a recipe. I currently only use two features, and base 
+them both off of the pivot table at the end of my EDA. They are based on 
+`n_steps` and `n_ingredients`, but they are each transformed with a 
+`FunctionTransformer` for prediction to bin the counts, similar to the pivot 
+table. 
+
+I chose these features because they were the initial features I thought would 
+best correlate with `minutes`, and I chose to bin them because of the earlier 
+relationship I saw. After sending both columns into a `ColumnTransformer`, and 
+then sending that into a pipeline followed by a `LinearRegression` model, I 
+completed my baseline. Using a train-test split with a test size of 0.25 (to 
+follow convention while trying to generalize as far as possible), I made my `X` 
+and `y` which I would use moving forward in the project. Note that X is a subset
+of my dataframe of the predictor columns, and y is the column I am trying to 
+predict.
+
+When evaluating my model with the RMSE, I got the value 43.897, which to me 
+seems very high. I don’t think there are enough good features in this model to 
+classify it as “good,” but it isn’t useless; there is a relationship that it is 
+capturing, and there is a lot of variation in cooking time, which makes the
+relationship difficult to capture.
+
+
+## Final Model
+
+So, the initial performance wasn’t the worst, but could definitely be improved. 
+The first step was to edit my existing features and add some new ones.
+
+First, the existing features lost a lot of information by binning. Because the 
+`minutes` to cook also varied highly, it makes sense to also capture all of the 
+`n_steps` and `n_ingredients`, so I opted to include these in my 
+`ColumnTransformer` with passthrough. Since they are quantitative, they can be 
+interpreted as is, but I also chose to apply a `StandardScaler` to make the 
+found coefficients more comparable should the need arise.
+
+Next, we will continue looking at those same columns, `n_steps` and 
+`n_ingredients`. While I will still include all of the values, I want to be sure 
+to help my model realize the shift in trends both columns show when they are 
+plotted against average `minutes`. Recall my final scatter plots from EDA, 
+showing linear trends and then completely changing at certain thresholds. An 
+eye test reveals these thresholds to be 51 for `n_ingredients` and 28 for 
+`n_steps`, though I may be a little off (not to worry; these are hyperparameters 
+and can be tuned later). These thresholds work perfectly with `Binarizers`, the 
+truth value of which should indicate the change in trends.
+
+A new feature I added was the `calories` feature. I figured that more calories 
+could indicate a larger meal, which could indicate more cooking time. I got the 
+`calories` value by transforming the `nutrition` column and extracting the first 
+element (`calories`), and then standardizing it with `StandardScaler` for 
+comparability.
+
+Continuing with the `nutrition` column, I found it the case that recipes that 
+are higher in protein supposedly cook faster, and recipes with more fat 
+supposedly cook slower. Conveniently, I have both of these values in the 
+`nutrition` list, and after extracting them both, I came up with a metric called 
+the protein-fat score, which is the difference between the two. I figure that 
+this may be able to capture the impacts of time of both nutritional categories.
+
+Next, I thought about how I may be able to use some text to discern 
+information, and came up with two features. The first of which is called 
+`vegetarian`, and to get it I added a column of booleans representing if a 
+recipe was vegetarian or not. I got these booleans by checking if the `name` 
+column or `tags` column contained any keywords that may indicate if a recipe is 
+vegetarian or vegan. As those recipes tend to have more ingredients and less 
+protein, I thought they would impact the cooking time due to my assumptions 
+about those two categories. A similar process was done for the `quick` feature, 
+where I looked in the `name` and `tags` columns for any words that may indicate 
+convenience and speed. For each of these features, I used `OneHotEncoder`, and 
+dropped one of each of the columns to avoid repetitive features.
+
+Features aren’t everything my model needed, however. I also needed to tune 
+hyperparameters, and the important ones I chose to fit were an intercept and 
+the `Binarizer` thresholds for `n_steps` and `n_ingredients`. I used 
+`GridSearchCV` to test values to see whether to fit an intercept or not, and to 
+test values around my observed thresholds. I used 5-fold cross validation for 
+generalizability and thoroughness, and even got to use negative root mean 
+squared error as my scoring metric, which was perfect for my model evaluation. 
+The optimal hyperparameters turned out to be an ingredients threshold of 28, a 
+steps threshold of 60, and `True` for fitting an intercept. After assigning 
+these optimal hyperparameters to variables and sending them into my final 
+`ColumnTransformer` and `Pipeline`, I had my final model completed.
+
+I used the same `X` and `y` I used on the baseline model for comparison and 
+evaluation purposes, and fortunately my final model had improved on my baseline 
+model. In the multiple times I ran the code, there was a difference in favor of 
+the final model by anywhere between about 1.2 and 0.5 units between the two root 
+mean squared errors (both generally hovered around the same 42.0 to 43.9 range). 
+This may not seem like a lot, but keep in mind the variability of the `minutes` 
+column, and how little error improves once a certain fit is met. Not only was 
+this model able to improve training and test error, but it does so consistently 
+for a variable that is hard to accurately predict due to several different 
+competing measures, as evidenced by the original scatter plots. Therefore, this 
+model is an improvement and can predict the time it takes to complete a recipe 
+within about the time it takes to watch an episode of your favorite show.
+
+## Fairness Analysis
+
+I thought the most interesting groups to perform fairness analysis on would be 
+those recipes that fall in the linear trend sections of the two scatter plots 
+near the end of my EDA, and those that don’t. Specifically, my groups will be 
+those recipes that have `n_ingredients` < 28 and `n_steps` < 55, and those that 
+don’t meet at least one of those criteria.
+
+Using a permutation test, I hoped to analyze this fairness. My null hypothesis 
+is that the test RMSE is the same for recipes that meet the conditions defined 
+above and those that don’t, while my alternative hypothesis is that the RMSE is 
+less for those recipes that meet the conditions. I think this alternative 
+hypothesis is most appropriate because the linear relationships were the best 
+defined. Because this is directional, I will choose a difference in RMSE, with 
+the order (doesn’t meet conditions - meets conditions). I think this is 
+appropriate because it evaluates model performance on both groups. I also once 
+again choose a significance level of 5% for conventional reasons, and will 
+collect my test statistics and observed statistics on the test sets, while only 
+training on the selected training data.
+
+I repeated this permutation test for 1000 iterations (less so because the test 
+is very slow, but still encompassing), and got a p-value of 0.001. As such, I 
+will reject the null hypothesis in favor of the alternative hypothesis. It seems 
+to be the case that my model performs better on those recipes whose `n_steps` 
+and `n_ingredients` counts are before the linear relationship threshold, which 
+tracks with the graphs and expectations from earlier.
