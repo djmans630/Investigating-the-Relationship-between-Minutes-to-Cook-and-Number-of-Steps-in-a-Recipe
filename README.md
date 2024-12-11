@@ -132,3 +132,337 @@ dataframe (with only the columns cleaned/filtered):
 |      5 | 2008-05-30 00:00:00 | [194.8, 0.2,...]| ['preheat...', 'mix...'] | ['frozen broccoli',...|      40 |
 |      5 | 2008-05-30 00:00:00 | [194.8, 0.2,...]| ['preheat...', 'mix...'] | ['frozen broccoli',...|      40 |
 |      5 | 2008-05-30 00:00:00 | [194.8, 0.2,...]| ['preheat...', 'mix...'] | ['frozen broccoli',...|      40 |
+
+
+Below is a graph showing the distribution of cooking times in minutes after the 
+filtering. Each bin on the x-axis represents a range of 15 minutes, and the 
+y-axis represents the number of UNIQUE recipes with cooking times in each 
+range. 
+
+To achieve this, I removed duplicate recipes by dropping duplicate `recipe_id` 
+values, keeping only the first occurrence. This approach is valid here since 
+the only information lost includes some individual reviews, dates, user IDs, 
+and ratings, none of which are relevant for this analysis. All other columns, 
+including recipe-specific characteristics, are preserved.
+
+<iframe
+  src="assets/minutes_distribution.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+From this graph, we can see that most of the recipes have minute counts below 
+100, and even more are below 50. This passes my sanity checks, as while these 
+counts are high, there are still many recipes above these thresholds.
+
+It will also be important to investigate the distribution of `n_steps` and 
+`n_ingredients`, due to my question of investigating the relationship between 
+these columns and the cooking time in minutes. Starting with `n_steps`, here is 
+a graph of the distribution of the values. Each bin is 5 steps wide, and notice 
+how wide the graph is. That is because some (very few) recipes have step counts 
+above even 60! However, once again, most of the step counts are lower, between 
+5 and 15, which tracks.
+
+
+<iframe
+  src="assets/n_steps_distribution.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+
+Similarly, let’s check the distribution of `n_ingredients`. This graph takes on 
+a more uniform shape, with the bulk of recipes having between 6 and 11 
+ingredients.
+
+
+<iframe
+  src="assets/n_ingredients_distribution.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+
+With both of these graphs, and for the rest of the plots in this EDA section, 
+it is important to keep in mind that we are looking at the subset of unique 
+recipes that take <= 300 minutes to cook.
+
+With these distributions in mind, and considering all of the values in these 
+columns are quantitative, I then moved onto plotting scatter plots for each 
+combination of the three columns to see if there was any obvious trend. Sadly, 
+the scatter plots were a bit difficult to interpret.
+
+Below is the scatter plot for number of steps (x-axis) and minutes to cook 
+(y-axis). I chose these axes because I am taking minutes to be a more dependent 
+variable. Unfortunately, no clear trend seems to be present.
+
+
+<iframe
+  src="assets/steps_minutes_scatter.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+
+I followed a similar procedure for plotting n_ingredients vs. minutes, once 
+again using minutes as the dependent variable and not seeing a clear trend. See
+the graph below:
+
+
+<iframe
+  src="assets/ingredients_minutes_scatter.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+
+Disappointed with the lack of a clear trend, I went on to plot the relationship 
+between the number of steps and the number of ingredients. While this also 
+doesn’t show too clear of a trend in the way I was hoping for, it got me 
+thinking that each step/ingredient count has a lot of variability in the other 
+count. It may be the case that I need to aggregate or look at the features 
+together to see something.
+
+
+<iframe
+  src="assets/steps_ingredients_scatter.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+After I pivoted with `n_ingredients` and `n_steps` as the columns and index, 
+with the mean minutes as the values, I came to see the trend I was expecting 
+pretty clearly. I won’t show that exact table, since there were many missing 
+values, but by binning the ingredient and step counts and repeating the 
+process, the result is this:
+
+							Ingredients block
+
+| steps_block   |     1-5 |     5-6 |     6-7 |     7-8 |     8-9 |    9-10 |   10-11 |   11-12 |   12-14 |   14-37 |
+|:--------------|--------:|--------:|--------:|--------:|--------:|--------:|--------:|--------:|--------:|--------:|
+| 1-4           | 15.5538 | 22.9704 | 28.7969 | 32.0918 | 34.6261 | 40.4548 | 42.5841 | 46.0292 | 52.0532 | 64.9861 |
+| 4-5           | 28.6936 | 32.8758 | 34.6355 | 36.0757 | 38.5944 | 46.1458 | 43.8667 | 43.6034 | 52.4017 | 62.0479 |
+| 5-6           | 33.3199 | 37.4881 | 37.2865 | 40.6751 | 41.0836 | 46.5852 | 45.9646 | 50.4211 | 54.0708 | 57.8128 |
+| 6-8           | 35.5095 | 38.7829 | 39.994  | 42.0173 | 44.4738 | 44.0206 | 45.7723 | 49.8715 | 54.5674 | 60.1082 |
+| 8-9           | 37.2272 | 41.0145 | 43.7986 | 46.9153 | 44.7438 | 50.1227 | 50.9625 | 51.6285 | 55.2057 | 62.9204 |
+
+
+From this table, it can clearly be seen that as the steps count increases, so 
+does the average minutes to cook. The same relationship is present between 
+ingredients count and average minutes to cook. So, it tracks that individually, 
+both `n_steps` and `n_ingredients` have a positive association with minutes to 
+cook, but variability in the other made this relationship difficult to see in 
+the scatter plots. 
+
+Nonetheless, aggregating by both shows a clear trend that indicates that yes, 
+there is indeed a relationship between `n_steps`, `n_ingredients`, and minutes 
+to cook a recipe. As `n_steps` and/or `n_ingredients` increases, so will the 
+expected time to cook in minutes. 
+
+To further illustrate this point, let’s see the earlier scatter plots with 
+**AVERAGE** minutes to cook instead of raw minutes.
+
+<iframe
+  src="assets/avg_mins_steps_scatter.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+
+This plot above shows a seemingly positive linear relationship until about 45 
+steps, at which point it becomes way more variable and even begins to show what 
+could be a negative linear relationship. This, along with the following graph, 
+will be important moving forward.
+
+The other graph with average minutes instead of raw minutes will be this 
+scatter plot below, of `n_ingredients` (x) vs. average minutes to cook (y). 
+Once again, we see a clearly positive linear relationship up until a certain 
+point (ingredients = about 27 here), at which point a negative trend results.
+
+
+<iframe
+  src="assets/avg_mins_ingredients_scatter.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+
+
+
+
+## Assessment of Missingness
+
+Before assessing whether the missingness of any column is MAR or MCAR, I would 
+first like to remind you of the columns that contain missing values, as well as 
+indicate that for this section, I will be using the dataframe `df`, that 
+contains all recipes (including duplicates). There are only 3 columns (from the 
+original dataset, excluding the `avg_rating` column I added) that contain 
+missingness. These columns are: `name`, `description`, and `rating`. Of these 
+columns, I do not believe any of them are NMAR.
+
+For the `description` column, I thought initially it may be, however upon 
+further analysis I believe there may be some dependency on the `name` and 
+`steps` columns. If the name is simple or revealing enough, which can be the 
+case in some instances, there may be no need for a description. Examples of 
+this include “peanut butter nana smoothie” and “spicy beef and vegetable soup,” 
+which may not require descriptions. Others, with less intuitive names, such as 
+“wasatch mountain chili” and “ultimate screwdriver” may be specific enough that 
+those looking for those recipes already know what they are, or there is a clear 
+description one google away. Because of this, I believe that the `description` 
+may be missing dependent on the VALUES of the `name` column, and when the name 
+is already clear or specific, it may be the case that no description is needed. 
+However, to be sure, I would need to quantify the specificity and clarity of 
+the names in some way, which could be prone to human bias. For now, I will say 
+this is NMAR.
+
+It could also be argued that the missing `name` is NMAR, since it could be 
+dependent on the value of that name (recall that only one recipe is missing the 
+name). However, I am more inclined to say this is an outlier and a specific 
+case, and as such I will label it as MCAR since there isn't a trend in 
+missingness in the `name` column.
+
+The `rating` column is the one I want to focus on, since it has the most 
+missing values (and really the only missing value count significant enough to 
+the dataset size to matter at around 15,000). I first checked the `avg_rating` 
+and `review` columns and found nothing out of the ordinary/any trend between 
+the missingness and certain values and sentiments in these columns. Things got 
+interesting, however, when I saw the average number of ingredients for recipes 
+without missing ratings was less than the average number of ingredients for 
+recipes missing ratings.
+
+Taking the absolute (non-directional) difference in means between the average 
+ingredient counts of the recipes with missing ratings and non-missing ratings 
+as my test statistic, I proceeded to perform a permutation test with the 
+following hypotheses: Null: recipes that have missing ratings have the same 
+average ingredient count as recipes that have ratings; Alternative: Recipes 
+with missing ratings have different average ingredient counts. I went in with a 
+chosen significance level of 0.05, and after shuffling the missing/not missing 
+rating labels and performing the test with 10,000 repetitions, I arrived with a 
+p-value of 0.0 and rejected the null hypothesis in favor of the alternative. 
+There was never a difference even near as large as my observed statistic. 
+
+As such, I will adopt the belief that the missingness of the `rating` column is 
+MAR dependent on `n_ingredients` with relative certainty. 
+
+Below is a histogram showing this relationship. The vertical red line represents 
+where the observed statistic fell in the distribution of calculated test 
+differences in means. Notice how improbable the observed statistic is.
+
+
+<iframe
+  src="assets/empirical_means_mar.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+
+
+But, just to be sure, I re-ran the permutation test with the Kolmogorov-Smirnov 
+test statistic instead, just in case the difference in distribution shapes was 
+getting in the way (and considering direction was not an issue). Operating 
+under similar conditions (0.05 significance and 10,000 repetitions), another 
+permutation test was carried out. 
+
+My null hypothesis here was that the two distributions, rating missing and not 
+missing, would have the same distribution of ingredient counts, and my 
+alternative hypothesis was that these two values would be different. Once 
+again, I got a p-value of 0.0 and promptly rejected the null hypothesis. 
+
+It is once again evident that the missingness of `rating` is MAR dependent on 
+`n_ingredients`, which I will assume moving forward. Below is the distribution 
+of the K-S test statistics, along with a red line to once again represent the 
+observed statistic’s placement on this distribution:
+
+
+<iframe
+  src="assets/empirical_ks_mar.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+
+However, this doesn’t mean that the missingness of the `ratings` column is MAR 
+dependent on every other column. For example, another permutation test, this 
+time using the `minutes` column with the absolute difference in average means 
+as the test statistic between the rating missing and not missing groups, shows 
+a different relationship. The absolute difference in means is appropriate 
+because I am not concerned with a direction, only a difference. Additionally, 
+`minutes` are numerical.
+
+Using a significance level of 0.05 again, my null hypothesis was that the 
+distribution of `minutes` would be the same for the rating missing and not 
+missing distributions, while my alternative hypothesis would be that they are 
+different. After performing 10,000 repetitions of this permutation test, I came 
+out with a p-value of 0.1138, which is above our significance threshold. 
+Consequently, we fail to reject the null hypothesis and move forward with the 
+assumption that the missingness of `rating` is not MAR dependent on the number 
+of minutes a recipe takes to cook. 
+
+Below is a histogram showing this relationship, with the red line once again 
+representing the observed statistic relative to the other test stats.
+
+<iframe
+  src="assets/empirical_means_mcar.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+
+
+
+
+## Hypothesis Testing
+
+For my hypothesis testing, I wanted to do something related to my later 
+prediction problem, so I decided to further analyze the relationship between 
+cooking time and number of steps in a recipe. I chose the following specifics 
+for framing this problem:
+
+- **Null Hypothesis**: Cooking time in minutes is not dependent on the number of 
+  steps in the recipe.
+- **Alternative Hypothesis**: Recipes with higher step counts will take longer 
+  to cook.
+- **Test Statistic**: Directional difference in means (not_lower_half - 
+  is_lower_half).
+- **Significance Level**: 5%.
+
+I think my alternative hypothesis is a reasonable one to test out because based 
+on the pivot table at the end of my EDA, I saw this relationship when binning 
+was applied. Now I want to see if it holds when there is no binning, and when 
+`n_ingredients` are not grouped either. The directional difference in means was 
+chosen as the test statistic because I need direction for this test, as my 
+alternative hypothesis is meant to detect a difference if my belief that 
+`n_steps` is positively associated with `minutes` holds. The order of 
+subtraction was chosen for this reason as well. I chose 5% as my significance 
+level partially because of convention, but also because it seems like a 
+reasonable amount for a one-tailed test.
+
+One other important characteristic of this permutation test I designed is how I 
+set it up. Note that there are recipes that exist with step counts in all values 
+from at least 1 to 38. After that (until the maximum step count recipes, 88), 
+some counts have no recipes, but there are still 76 possible step counts in our 
+dataset. As such, I determined the midpoint to be 38, grouped by the number of 
+steps, assigned a new column `is_lower_half` to be a column of booleans 
+representing whether the step counts are 38 or lower or not, and would proceed 
+to shuffle this column for permutations. I did this to define what could be 
+considered a “low” step count and a “high” step count for the purpose of 
+categorization.
+
+With 10,000 repetitions once again, I end up with a p-value of 0.0. With this 
+value as low as it is, I will reject the null hypothesis in favor of the 
+alternative hypothesis. It seems like recipes that have higher step counts will 
+take longer to cook on average. This tracks with my assumptions.
+
+Below is a histogram showing the distribution of the collected test statistics, 
+with the vertical red line showing where the observed statistic lies.
