@@ -3,6 +3,8 @@
 ---
 
 
+
+
 ## Introduction
 
 
@@ -58,6 +60,8 @@ that are not as important to my analysis but are still important in the dataset
 are `date` (for dates), `user_id` (for unique user identification), `avg_rating`  
 (a column I added that contains the average ratings of each recipe), and `review`  
 (containing someone’s string review of a recipe).
+
+
 
 
 
@@ -148,7 +152,7 @@ including recipe-specific characteristics, are preserved.
 <iframe
   src="assets/minutes_distribution.html"
   width="800"
-  height="600"
+  height="450"
   frameborder="0"
 ></iframe>
 
